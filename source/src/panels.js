@@ -222,7 +222,40 @@ function renderBio(link) {
 
 /* ---------- loading a location from files ------------------------------------------ */
 const pending = {files: null, name: '', result: null};
+/* A .zip is opened in the browser: read its central directory, inflate each entry with DecompressionStream. */
+async function unzip(file) {
+  const buf = new Uint8Array(await file.arrayBuffer()), dv = new DataView(buf.buffer), dec = new TextDecoder();
+  let e = -1; for (let i = buf.length - 22; i >= Math.max(0, buf.length - 66000); i--) if (dv.getUint32(i, true) === 0x06054b50) { e = i; break; }
+  if (e < 0) throw new Error('not a zip file');
+  const n = dv.getUint16(e + 10, true); let p = dv.getUint32(e + 16, true); const out = [];
+  for (let k = 0; k < n; k++) {
+    if (dv.getUint32(p, true) !== 0x02014b50) throw new Error('damaged zip directory');
+    const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true), nl = dv.getUint16(p + 28, true), xl = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), off = dv.getUint32(p + 42, true);
+    const name = dec.decode(buf.subarray(p + 46, p + 46 + nl)); p += 46 + nl + xl + cl;
+    if (name.endsWith('/') || name.startsWith('__MACOSX/')) continue;
+    const start = off + 30 + dv.getUint16(off + 26, true) + dv.getUint16(off + 28, true), raw = buf.subarray(start, start + csize);
+    let data;
+    if (method === 0) data = raw;
+    else if (method === 8) {
+      if (typeof DecompressionStream === 'undefined') throw new Error('this browser cannot open zip files. Unzip it first, then choose the folder');
+      data = new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer());
+    } else throw new Error(`${name} uses a zip compression this app cannot read. Unzip it first, then choose the folder`);
+    out.push({path: name, file: new File([data], name.split('/').pop())});
+  }
+  return out;
+}
 async function takeFiles(list, folderName) {
+  const zips = list.filter(it => /\.zip$/i.test(it.path));
+  if (zips.length) {
+    try {
+      const inner = []; for (const z of zips) inner.push(...await unzip(z.file));
+      list = list.filter(it => !zips.includes(it)).concat(inner);
+      if (!folderName) { const top = inner.map(it => it.path.split('/')).filter(a => a.length > 1).map(a => a[0]); folderName = top[0] || zips[0].file.name.replace(/\.zip$/i, ''); }
+    } catch (err) {
+      pending.result = {ds: null, report: {items: [{file: zips[0].file.name, slot: null, state: 'error', summary: '', msgs: [{level: 'error', text: 'Could not open the zip: ' + err.message + '.'}]}], nErr: 1, nWarn: 0}};
+      renderReport(); return;
+    }
+  }
   // list: [{path, file}] ; keep the shallowest copy of each base name
   const best = new Map();
   for (const it of list) { const base = it.path.split('/').pop().toLowerCase(), depth = it.path.split('/').length; if (base.startsWith('.')) continue; if (!best.has(base) || best.get(base).depth > depth) best.set(base, {depth, file: it.file}); }
