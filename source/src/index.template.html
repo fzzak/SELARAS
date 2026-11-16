@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SELARAS Layer Explorer</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="SELARAS: explore the seafloor, water column, currents and biology of one ocean location in a linked 3D view.">
+<link rel="icon" type="image/png" href="data:image/png;base64,/*FAVICON*/">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Montserrat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/*CSS*/
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="lockup">
+    <span class="team"><img src="data:image/png;base64,/*LOCKUP*/" alt="DIMIDIATUS" width="106" height="44"></span>
+    <div class="product" aria-label="SELARAS: Spatially-Linked Ecological Layer Analysis and Rendering System">
+      <span class="word" aria-hidden="true"><i>S</i><i>E</i><i>L</i><i>A</i><i>R</i><i>A</i><i>S</i></span>
+      <span class="bar" aria-hidden="true">Spatially-Linked Ecological Layer Analysis and Rendering System</span>
+    </div>
+  </div>
+  <div class="top-actions">
+    <label class="dsel" for="ds-select">Location <select id="ds-select"></select></label>
+    <button type="button" class="btn primary" id="btn-load">Load a location</button>
+    <button type="button" class="btn" id="btn-format">Input format</button>
+  </div>
+</header>
+<main class="app">
+  <aside class="slots" aria-label="Location and locked data list">
+    <div id="ds-info"></div>
+    <h2>Locked data list <span title="Version of the input format this app reads">Format 1</span></h2>
+    <ol id="slot-list"></ol>
+    <p class="credit">SELARAS is developed by DIMIDIATUS: Dillon Hutama and Faiz Abdullah.</p>
+  </aside>
+  <section class="stage" aria-label="Scene and station table">
+    <nav id="stories" aria-label="Guided views"></nav>
+    <div id="story-text" hidden></div>
+    <div class="scene-bar"><div id="tools"></div><p class="scene-hint">Drag to rotate. Scroll to zoom. Shift-drag to pan.</p></div>
+    <div class="scene-wrap" id="scene-wrap">
+      <canvas id="gl"></canvas>
+      <canvas id="ov" aria-label="3D scene of the seafloor, water column, currents, biology samples and stations. Drag to rotate, scroll to zoom, shift-drag to move, arrow keys also rotate. Every station is also listed in the table below."></canvas>
+      <div id="tip" role="status"></div>
+      <div id="nogl" hidden><p>This browser cannot draw the 3D scene because WebGL is switched off.<br>The station table and profile charts still work.</p></div>
+    </div>
+    <div id="legend" aria-label="Legend"></div>
+    <div class="tablewrap"><table id="st-table" aria-label="Stations in this location"></table></div>
+  </section>
+  <aside class="detail" aria-label="Selected stations">
+    <div id="sel-head"></div>
+    <div id="linked"></div>
+    <h3>Profiles</h3>
+    <div id="charts"></div>
+    <div class="readwrap" id="readout"></div>
+    <div id="bio"></div>
+  </aside>
+</main>
+
+<dialog id="dlg-load" aria-labelledby="dl-t">
+  <div class="dlg-head"><h2 id="dl-t">Load a location</h2><button type="button" class="btn sm" data-close>Close</button></div>
+  <div class="dlg-body">
+    <p class="lead">Choose the folder for one location. SELARAS reads only the locked files and tells you what it found before anything opens.</p>
+    <div id="drop">
+      <div class="picks">
+        <span class="btn primary filebtn">Choose a folder<input type="file" id="pick-folder" webkitdirectory multiple aria-label="Choose a folder"></span>
+        <span class="btn filebtn">Choose files<input type="file" id="pick-files" multiple accept=".csv,.asc,.json,.txt" aria-label="Choose files"></span>
+      </div>
+      <span class="t-dim">or drop the folder here. Files are read in your browser and are not uploaded.</span>
+    </div>
+    <div id="example-dl"></div>
+    <div id="load-report"></div>
+    <div class="dlg-foot"><span class="t-dim">Not sure what goes in the folder? <a href="#" id="link-format" style="color:var(--paper)">See the input format</a>.</span><button type="button" class="btn primary" id="btn-open" disabled>Open this location</button></div>
+    <div id="saved"></div>
+  </div>
+</dialog>
+<dialog id="dlg-format" aria-labelledby="df-t">
+  <div class="dlg-head"><h2 id="df-t">Input format: one folder per location</h2><button type="button" class="btn sm" data-close>Close</button></div>
+  <div class="dlg-body" id="format-body"></div>
+</dialog>
+
+<script type="application/json" id="builtin">/*DATA*/</script>
+<script>
+const SELARAS_SITE = /*SITE*/false;
+/*JS*/
+</script>
+</body>
+</html>

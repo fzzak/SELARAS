@@ -1,0 +1,4 @@
+# Never commit restricted survey data (e.g. OceanX cruise folders). Load it in the app from your own computer.
+*.cnv
+*_restricted/
+palau*/
